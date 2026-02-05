@@ -1,2 +1,5 @@
 export * from "./columns"
 export * from "./data-table"
+export * from "./data-table-search"
+export * from "./data-table-faceted-filters"
+export * from "./data-table-pagination"

@@ -175,19 +175,21 @@ export function AutoTable<T extends z.ZodObject<any>>({
   };
 
   return (
-    <div className="space-y-4">
+    <>
       {/* Header */}
       {(title || description || mutations.create) && (
-        <div className="flex items-center justify-between">
-          <div>
+        <div className="flex w-full flex-col gap-4 md:flex-row md:items-center md:justify-between mb-4">
+          <div className="space-y-1">
             {title && <h2 className="text-2xl font-bold tracking-tight">{title}</h2>}
             {description && <p className="text-muted-foreground">{description}</p>}
           </div>
           {mutations.create && (
-            <Button onClick={() => setCreateDialogOpen(true)}>
-              <Plus className="mr-2 h-4 w-4" />
-              Create
-            </Button>
+            <div className="md:flex md:justify-end">
+              <Button onClick={() => setCreateDialogOpen(true)}>
+                <Plus className="mr-2 h-4 w-4" />
+                Create
+              </Button>
+            </div>
           )}
         </div>
       )}
@@ -256,6 +258,6 @@ export function AutoTable<T extends z.ZodObject<any>>({
           )}
         </Dialog>
       )} */}
-    </div>
+    </>
   );
 }
