@@ -1,0 +1,12 @@
+# Dependencies
+node_modules
+
+# Source files
+src
+
+# Misc
+.DS_Store
+
+# Config files
+tsconfig.json
+tsup.config.ts

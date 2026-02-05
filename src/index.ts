@@ -1,4 +1,3 @@
-export function sayHelloWorld(): string {
-    console.log('Hello, World!');
-    return 'Hello, World!';
-}
+export {
+    AutoTable
+} from "./table"
