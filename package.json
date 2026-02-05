@@ -1,0 +1,29 @@
+{
+  "name": "react-auto-crud",
+  "description": "Automatically generate server-side CRUD tables and forms from Zod schemas",
+  "version": "0.0.1",
+  "author": "juanda237",
+  "license": "MIT",
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "format": "prettier --write ."
+  },
+  "devDependencies": {
+    "prettier": "3.8.1",
+    "tsup": "^8.5.1",
+    "typescript": "^5.9.3"
+  },
+  "keywords": [
+    "react",
+    "crud",
+    "zod",
+    "forms",
+    "tables",
+    "auto-generated"
+  ]
+}
