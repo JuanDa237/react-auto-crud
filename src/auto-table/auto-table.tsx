@@ -7,13 +7,14 @@ import { PaginationState, SortingState, ColumnFiltersState } from '@tanstack/rea
 
 // Components
 import { Button } from '@/components/ui/button';
+import { DeleteAction, EditAction } from './auto-table-actions';
 import { DataTable, generateColumns } from '../data-table';
 import { AutoForm } from '../form/auto-form';
 import { AutoTableSheet } from './auto-table-sheet';
 import { useCrudMutations } from './use-crud-mutations';
 
 // Icons
-import { Plus, Pencil, Trash2 } from 'lucide-react';
+import { Plus } from 'lucide-react';
 
 // Utils and Types
 import { ApiRequest } from '../utils/types';
@@ -72,6 +73,7 @@ export function AutoTable<T extends z.ZodObject<any>>({
     },
   });
 
+
   // Generate columns with actions
   const columns = useMemo(
     () =>
@@ -81,29 +83,20 @@ export function AutoTable<T extends z.ZodObject<any>>({
         renderActions: (row: z.infer<T>) => (
           <div className="flex items-center gap-2">
             {mutations.update && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => {
-                  setEditingItem(row);
+              <EditAction
+                row={row}
+                onEdit={item => {
+                  setEditingItem(item);
                   setEditDialogOpen(true);
                 }}
-              >
-                <Pencil className="h-4 w-4" />
-              </Button>
+              />
             )}
             {mutations.delete && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => {
-                  if (confirm('Are you sure you want to delete this item?')) {
-                    deleteMutation.mutate((row as any).id);
-                  }
-                }}
-              >
-                <Trash2 className="h-4 w-4 text-red-600" />
-              </Button>
+              <DeleteAction
+                row={row}
+                onDelete={item => deleteMutation.mutate((item as any).id)}
+                isDeleting={deleteMutation.isPending}
+              />
             )}
           </div>
         ),
@@ -132,8 +125,8 @@ export function AutoTable<T extends z.ZodObject<any>>({
           </div>
           {mutations.create && (
             <div className="md:flex md:justify-end">
-              <Button onClick={() => setCreateDialogOpen(true)}>
-                <Plus className="mr-2 h-4 w-4" />
+              <Button size="sm" onClick={() => setCreateDialogOpen(true)}>
+                <Plus />
                 Create
               </Button>
             </div>
