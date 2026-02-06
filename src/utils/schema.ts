@@ -103,6 +103,7 @@ export function getFieldType(schema: z.ZodTypeAny): string {
     let unwrapped: z.ZodTypeAny = schema;
 
     while (
+        unwrapped instanceof z.ZodDefault ||
         unwrapped instanceof z.ZodOptional ||
         unwrapped instanceof z.ZodNullable
     ) {
@@ -112,7 +113,11 @@ export function getFieldType(schema: z.ZodTypeAny): string {
     if (unwrapped instanceof z.ZodString) return 'string';
     if (unwrapped instanceof z.ZodNumber) return 'number';
     if (unwrapped instanceof z.ZodBoolean) return 'boolean';
+
     if (unwrapped instanceof z.ZodDate) return 'date';
+    if (unwrapped instanceof z.ZodISODateTime) return 'date';
+    if (unwrapped instanceof z.ZodISODate) return 'date';
+
     if (unwrapped instanceof z.ZodEnum) return 'enum';
     if (unwrapped instanceof z.ZodArray) return 'array';
     if (unwrapped instanceof z.ZodObject) return 'object';
@@ -134,6 +139,7 @@ export function getEnumOptions(schema: z.ZodTypeAny): Array<{ label: string; val
     let unwrapped = schema;
 
     while (
+        unwrapped instanceof z.ZodDefault ||
         unwrapped instanceof z.ZodOptional ||
         unwrapped instanceof z.ZodNullable
     ) {
@@ -141,9 +147,12 @@ export function getEnumOptions(schema: z.ZodTypeAny): Array<{ label: string; val
     }
 
     if (unwrapped instanceof z.ZodEnum) {
-        return Object.keys(unwrapped.def.entries).map((value: string) => ({
-            label: value,
-            value,
+        const values = Array.isArray(unwrapped.options)
+            ? unwrapped.options
+            : Object.keys(unwrapped.def.entries ?? {});
+        return values.map((value) => ({
+            label: String(value),
+            value: String(value),
         }));
     }
 

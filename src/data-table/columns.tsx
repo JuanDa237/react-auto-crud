@@ -12,6 +12,7 @@ import { ArrowUp, ArrowDown, X, Check } from 'lucide-react';
 
 // Utils
 import { extractSchemaFields, getFieldType } from '../utils/schema';
+import { formatDate } from '../utils/format-date';
 
 export interface ColumnGeneratorOptions {
   /** Enable row selection */
@@ -144,7 +145,7 @@ function formatCellValue(value: any, fieldType: string): React.ReactNode {
         </span>
       );
     case 'date':
-      return new Date(value).toLocaleDateString();
+      return formatDate(value);
     case 'array':
       return Array.isArray(value) ? value.length + ' items' : '—';
     case 'object':

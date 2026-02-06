@@ -1,41 +1,23 @@
+import { useMemo, useState } from 'react';
+
 // Libs
 import { z } from 'zod';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { PaginationState, SortingState, ColumnFiltersState } from '@tanstack/react-table';
 
 // Components
 import { Button } from '@/components/ui/button';
+import { DataTable, generateColumns } from '../data-table';
+import { AutoForm } from '../form/auto-form';
+import { AutoTableSheet } from './auto-table-sheet';
+import { useCrudMutations } from './use-crud-mutations';
 
 // Icons
 import { Plus, Pencil, Trash2 } from 'lucide-react';
 
 // Utils and Types
-import { ApiFetcher, ApiRequest, CrudMutations } from '../utils/types';
-import { DataTable, generateColumns } from '../data-table';
-import { useMemo, useState } from 'react';
-
-export interface AutoCrudTableProps<T extends z.ZodObject<any>> {
-  /** Zod schema defining the data structure */
-  schema: T;
-  /** Query key for TanStack Query caching */
-  queryKey: string | string[];
-  /** Server-side fetcher function */
-  fetcher: ApiFetcher<z.infer<T>>;
-  /** CRUD mutation functions */
-  mutations?: CrudMutations<z.infer<T>>;
-  /** Initial page size */
-  defaultPageSize?: number;
-  /** Enable row selection */
-  enableSelection?: boolean;
-  /** Table title */
-  title?: string;
-  /** Table description */
-  description?: string;
-  /** Column to search (e.g., 'name', 'email') */
-  searchColumn?: string;
-  /** Placeholder text for search input */
-  searchPlaceholder?: string;
-}
+import { ApiRequest } from '../utils/types';
+import { AutoTableProps } from './types';
 
 /**
  * Main AutoTable component
@@ -52,9 +34,7 @@ export function AutoTable<T extends z.ZodObject<any>>({
   description,
   searchColumn,
   searchPlaceholder,
-}: AutoCrudTableProps<T>) {
-  const queryClient = useQueryClient();
-
+}: AutoTableProps<T>) {
   // Table state
   const [pagination, setPagination] = useState<PaginationState>({
     pageIndex: 0,
@@ -84,44 +64,11 @@ export function AutoTable<T extends z.ZodObject<any>>({
   });
 
   // Create mutation
-  const createMutation = useMutation({
-    mutationFn: async (values: Partial<z.infer<T>>) => {
-      if (!mutations.create) {
-        throw new Error('Create mutation not provided');
-      }
-      return mutations.create(values);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [queryKey] });
-      setCreateDialogOpen(false);
-    },
-  });
-
-  // Update mutation
-  const updateMutation = useMutation({
-    mutationFn: async ({ id, values }: { id: string | number; values: Partial<z.infer<T>> }) => {
-      if (!mutations.update) {
-        throw new Error('Update mutation not provided');
-      }
-      return mutations.update(id, values);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [queryKey] });
+  const { createMutation, updateMutation, deleteMutation } = useCrudMutations(mutations, queryKey, {
+    onCreateSuccess: () => setCreateDialogOpen(false),
+    onUpdateSuccess: () => {
       setEditDialogOpen(false);
       setEditingItem(null);
-    },
-  });
-
-  // Delete mutation
-  const deleteMutation = useMutation({
-    mutationFn: async (id: string | number) => {
-      if (!mutations.delete) {
-        throw new Error('Delete mutation not provided');
-      }
-      return mutations.delete(id);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [queryKey] });
     },
   });
 
@@ -212,9 +159,9 @@ export function AutoTable<T extends z.ZodObject<any>>({
         searchPlaceholder={searchPlaceholder}
       />
 
-      {/* Create Dialog */}
-      {/* {mutations.create && (
-        <Dialog
+      {/* Create Sheet */}
+      {mutations.create && (
+        <AutoTableSheet
           open={createDialogOpen}
           onOpenChange={setCreateDialogOpen}
           title="Create New Item"
@@ -228,12 +175,12 @@ export function AutoTable<T extends z.ZodObject<any>>({
             submitLabel="Create"
             isSubmitting={createMutation.isPending}
           />
-        </Dialog>
-      )} */}
+        </AutoTableSheet>
+      )}
 
-      {/* Edit Dialog */}
-      {/* {mutations.update && (
-        <Dialog
+      {/* Edit Sheet */}
+      {mutations.update && (
+        <AutoTableSheet
           open={editDialogOpen}
           onOpenChange={open => {
             setEditDialogOpen(open);
@@ -256,8 +203,8 @@ export function AutoTable<T extends z.ZodObject<any>>({
               isSubmitting={updateMutation.isPending}
             />
           )}
-        </Dialog>
-      )} */}
+        </AutoTableSheet>
+      )}
     </>
   );
 }
